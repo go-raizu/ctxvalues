@@ -18,7 +18,7 @@ import (
 	"context"
 )
 
-type Key[T comparable] struct{}
+type Key[T any] struct{}
 
 func (k Key[T]) WithValue(ctx context.Context, val T) context.Context {
 	return context.WithValue(ctx, (*T)(nil), val)
@@ -36,6 +36,6 @@ func (k Key[T]) GetOrDefault(ctx context.Context, val T) T {
 	return val
 }
 
-func NewKey[T comparable]() Key[T] {
+func NewKey[T any]() Key[T] {
 	return Key[T]{}
 }

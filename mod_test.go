@@ -15,7 +15,9 @@
 package ctxvalues_test
 
 import (
+	"bytes"
 	"context"
+	"io"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -23,15 +25,15 @@ import (
 	"github.com/go-raizu/ctxvalues"
 )
 
-type UserID string
-
-var UserIDCtxKey = ctxvalues.NewKey[UserID]()
-
-type AdminID string
-
-var AdminIDCtxKey = ctxvalues.NewKey[AdminID]()
-
 func Test_Collision(t *testing.T) {
+	type UserID string
+
+	var UserIDCtxKey = ctxvalues.NewKey[UserID]()
+
+	type AdminID string
+
+	var AdminIDCtxKey = ctxvalues.NewKey[AdminID]()
+
 	ctx := context.Background()
 
 	ctx = UserIDCtxKey.WithValue(ctx, "foo")
@@ -42,11 +44,36 @@ func Test_Collision(t *testing.T) {
 }
 
 func Test_Individual(t *testing.T) {
-	ctx := context.Background()
+	type UserID string
 
+	var UserIDCtxKey = ctxvalues.NewKey[UserID]()
+
+	type AdminID string
+
+	var AdminIDCtxKey = ctxvalues.NewKey[AdminID]()
+
+	ctx := context.Background()
 	ctx = UserIDCtxKey.WithValue(ctx, "foo")
 	ctx = AdminIDCtxKey.WithValue(ctx, "baa")
 
 	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrDefault(ctx, ""))
 	assert.Equal(t, AdminID("baa"), AdminIDCtxKey.GetOrDefault(ctx, ""))
+}
+
+func Test_Interface(t *testing.T) {
+	type InfoWriter io.Writer
+	type ErrorWriter io.Writer
+
+	var InfoWriterCtxKey = ctxvalues.NewKey[InfoWriter]()
+	var ErrorWriterCtxKey = ctxvalues.NewKey[ErrorWriter]()
+
+	var bufA bytes.Buffer
+	var bufB bytes.Buffer
+
+	ctx := context.Background()
+	ctx = InfoWriterCtxKey.WithValue(ctx, &bufA)
+	ctx = ErrorWriterCtxKey.WithValue(ctx, &bufB)
+
+	assert.Same(t, &bufA, InfoWriterCtxKey.GetOrDefault(ctx, nil))
+	assert.Same(t, &bufB, ErrorWriterCtxKey.GetOrDefault(ctx, nil))
 }
