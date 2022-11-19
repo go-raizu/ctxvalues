@@ -42,6 +42,15 @@ func (k Key[T]) GetOrElse(ctx context.Context, val T) T {
 	return val
 }
 
+// GetOrZero returns the value if the value was found within the
+// context or the zero value of the given type.
+func (k Key[T]) GetOrZero(ctx context.Context) (out T) {
+	if v, ok := k.Get(ctx); ok {
+		out = v
+	}
+	return
+}
+
 func NewKey[T any]() Key[T] {
 	return Key[T]{}
 }
