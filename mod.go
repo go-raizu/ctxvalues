@@ -18,24 +18,24 @@ import (
 	"context"
 )
 
-type Key[T any] struct{}
+type Key[KT, VT any] struct{}
 
 // WithValue returns a copy of the parent context in which the value
 // associated with key type is val.
-func (k Key[T]) WithValue(ctx context.Context, val T) context.Context {
-	return context.WithValue(ctx, (*T)(nil), val)
+func (k Key[KT, VT]) WithValue(ctx context.Context, val VT) context.Context {
+	return context.WithValue(ctx, (*KT)(nil), val)
 }
 
 // Get returns the value and a boolean value indicating whenever
 // the value was found within the context or not.
-func (k Key[T]) Get(ctx context.Context) (v T, ok bool) {
-	v, ok = ctx.Value((*T)(nil)).(T)
+func (k Key[KT, VT]) Get(ctx context.Context) (v VT, ok bool) {
+	v, ok = ctx.Value((*KT)(nil)).(VT)
 	return
 }
 
 // GetOrElse returns the value if the value was found within the
 // context or the provided default value otherwise.
-func (k Key[T]) GetOrElse(ctx context.Context, val T) T {
+func (k Key[KT, VT]) GetOrElse(ctx context.Context, val VT) VT {
 	if v, ok := k.Get(ctx); ok {
 		val = v
 	}
@@ -44,13 +44,17 @@ func (k Key[T]) GetOrElse(ctx context.Context, val T) T {
 
 // GetOrZero returns the value if the value was found within the
 // context or the zero value of the given type.
-func (k Key[T]) GetOrZero(ctx context.Context) (out T) {
+func (k Key[KT, VT]) GetOrZero(ctx context.Context) (out VT) {
 	if v, ok := k.Get(ctx); ok {
 		out = v
 	}
 	return
 }
 
-func NewKey[T any]() Key[T] {
-	return Key[T]{}
+func New2[KT, VT any]() Key[KT, VT] {
+	return Key[KT, VT]{}
+}
+
+func New[T any]() Key[T, T] {
+	return Key[T, T]{}
 }

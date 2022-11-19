@@ -28,44 +28,44 @@ import (
 func Test_Collision(t *testing.T) {
 	type UserID string
 
-	var UserIDCtxKey = ctxvalues.NewKey[UserID]()
+	var UserIDCtxKey = ctxvalues.New[UserID]()
 
 	type AdminID string
 
-	var AdminIDCtxKey = ctxvalues.NewKey[AdminID]()
+	var AdminIDCtxKey = ctxvalues.New[AdminID]()
 
 	ctx := context.Background()
 
 	ctx = UserIDCtxKey.WithValue(ctx, "foo")
 	ctx = AdminIDCtxKey.WithValue(ctx, "foo")
 
-	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrElse(ctx, ""))
-	assert.Equal(t, AdminID("foo"), AdminIDCtxKey.GetOrElse(ctx, ""))
+	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrZero(ctx))
+	assert.Equal(t, AdminID("foo"), AdminIDCtxKey.GetOrZero(ctx))
 }
 
 func Test_Individual(t *testing.T) {
 	type UserID string
 
-	var UserIDCtxKey = ctxvalues.NewKey[UserID]()
+	var UserIDCtxKey = ctxvalues.New[UserID]()
 
 	type AdminID string
 
-	var AdminIDCtxKey = ctxvalues.NewKey[AdminID]()
+	var AdminIDCtxKey = ctxvalues.New[AdminID]()
 
 	ctx := context.Background()
 	ctx = UserIDCtxKey.WithValue(ctx, "foo")
 	ctx = AdminIDCtxKey.WithValue(ctx, "baa")
 
-	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrElse(ctx, ""))
-	assert.Equal(t, AdminID("baa"), AdminIDCtxKey.GetOrElse(ctx, ""))
+	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrZero(ctx))
+	assert.Equal(t, AdminID("baa"), AdminIDCtxKey.GetOrZero(ctx))
 }
 
 func Test_Interface(t *testing.T) {
 	type InfoWriter io.Writer
 	type ErrorWriter io.Writer
 
-	var InfoWriterCtxKey = ctxvalues.NewKey[InfoWriter]()
-	var ErrorWriterCtxKey = ctxvalues.NewKey[ErrorWriter]()
+	var InfoWriterCtxKey = ctxvalues.New[InfoWriter]()
+	var ErrorWriterCtxKey = ctxvalues.New[ErrorWriter]()
 
 	var bufA bytes.Buffer
 	var bufB bytes.Buffer
@@ -74,6 +74,41 @@ func Test_Interface(t *testing.T) {
 	ctx = InfoWriterCtxKey.WithValue(ctx, &bufA)
 	ctx = ErrorWriterCtxKey.WithValue(ctx, &bufB)
 
-	assert.Same(t, &bufA, InfoWriterCtxKey.GetOrElse(ctx, nil))
-	assert.Same(t, &bufB, ErrorWriterCtxKey.GetOrElse(ctx, nil))
+	assert.Same(t, &bufA, InfoWriterCtxKey.GetOrZero(ctx))
+	assert.Same(t, &bufB, ErrorWriterCtxKey.GetOrZero(ctx))
+}
+
+func Test_MultiType(t *testing.T) {
+	type UserID string
+
+	var UserIDCtxKey = ctxvalues.New2[UserID, string]()
+
+	type AdminID string
+
+	var AdminIDCtxKey = ctxvalues.New2[AdminID, string]()
+
+	ctx := context.Background()
+	ctx = UserIDCtxKey.WithValue(ctx, "foo")
+	ctx = AdminIDCtxKey.WithValue(ctx, "baa")
+
+	assert.Equal(t, "foo", UserIDCtxKey.GetOrZero(ctx))
+	assert.Equal(t, "baa", AdminIDCtxKey.GetOrZero(ctx))
+}
+
+func TestKey_GetOrElse(t *testing.T) {
+	type aType struct{}
+	var aKey = ctxvalues.New2[aType, int]()
+
+	type bType struct{}
+	var bKey = ctxvalues.New2[bType, int]()
+
+	ctx := aKey.WithValue(context.TODO(), 23)
+
+	t.Run("present", func(t *testing.T) {
+		assert.Equal(t, 23, aKey.GetOrElse(ctx, 11))
+	})
+
+	t.Run("absent", func(t *testing.T) {
+		assert.Equal(t, 11, bKey.GetOrElse(ctx, 11))
+	})
 }
