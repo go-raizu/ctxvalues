@@ -29,7 +29,7 @@ func (k Key[T]) Get(ctx context.Context) (v T, ok bool) {
 	return
 }
 
-func (k Key[T]) GetOrDefault(ctx context.Context, val T) T {
+func (k Key[T]) GetOrElse(ctx context.Context, val T) T {
 	if v, ok := k.Get(ctx); ok {
 		val = v
 	}

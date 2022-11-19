@@ -39,8 +39,8 @@ func Test_Collision(t *testing.T) {
 	ctx = UserIDCtxKey.WithValue(ctx, "foo")
 	ctx = AdminIDCtxKey.WithValue(ctx, "foo")
 
-	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrDefault(ctx, ""))
-	assert.Equal(t, AdminID("foo"), AdminIDCtxKey.GetOrDefault(ctx, ""))
+	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrElse(ctx, ""))
+	assert.Equal(t, AdminID("foo"), AdminIDCtxKey.GetOrElse(ctx, ""))
 }
 
 func Test_Individual(t *testing.T) {
@@ -56,8 +56,8 @@ func Test_Individual(t *testing.T) {
 	ctx = UserIDCtxKey.WithValue(ctx, "foo")
 	ctx = AdminIDCtxKey.WithValue(ctx, "baa")
 
-	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrDefault(ctx, ""))
-	assert.Equal(t, AdminID("baa"), AdminIDCtxKey.GetOrDefault(ctx, ""))
+	assert.Equal(t, UserID("foo"), UserIDCtxKey.GetOrElse(ctx, ""))
+	assert.Equal(t, AdminID("baa"), AdminIDCtxKey.GetOrElse(ctx, ""))
 }
 
 func Test_Interface(t *testing.T) {
@@ -74,6 +74,6 @@ func Test_Interface(t *testing.T) {
 	ctx = InfoWriterCtxKey.WithValue(ctx, &bufA)
 	ctx = ErrorWriterCtxKey.WithValue(ctx, &bufB)
 
-	assert.Same(t, &bufA, InfoWriterCtxKey.GetOrDefault(ctx, nil))
-	assert.Same(t, &bufB, ErrorWriterCtxKey.GetOrDefault(ctx, nil))
+	assert.Same(t, &bufA, InfoWriterCtxKey.GetOrElse(ctx, nil))
+	assert.Same(t, &bufB, ErrorWriterCtxKey.GetOrElse(ctx, nil))
 }
