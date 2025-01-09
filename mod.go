@@ -18,6 +18,7 @@ import (
 	"context"
 )
 
+// Key provides a type-safe approach to managing values in [context.Context].
 type Key[KT, VT any] struct{}
 
 // WithValue returns a copy of the parent context in which the value
@@ -51,10 +52,12 @@ func (k Key[KT, VT]) GetOrZero(ctx context.Context) (out VT) {
 	return
 }
 
+// New2 creates a new Key with the given key and type value which can differ.
 func New2[KT, VT any]() Key[KT, VT] {
 	return Key[KT, VT]{}
 }
 
+// New creates a new Key with a given type that is used both as the key and value.
 func New[T any]() Key[T, T] {
 	return Key[T, T]{}
 }
